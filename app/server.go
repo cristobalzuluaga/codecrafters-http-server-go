@@ -23,13 +23,19 @@ func main() {
 	}
 	defer conn.Close()
 
-	conn.Read(nil)
+	var req []byte
 
-	res, err := conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	_, err = conn.Read(req)
+	if err != nil {
+		log.Println("Error reading byets: ", err.Error())
+		os.Exit(1)
+	}
+
+	_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	if err != nil {
 		log.Println("Error writing bytes: ", err.Error())
 		os.Exit(1)
 	}
 
-	fmt.Printf("res: %v\n", res)
+	fmt.Printf("req: %v\n", req)
 }
