@@ -1,13 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
 	"os"
 	"strings"
 )
 
+var dir string
+
 func main() {
+	flag.StringVar(&dir, "directory", "prueba1", "the file to find in workdir")
+	flag.Parse()
+
 	l, err := net.Listen("tcp", "0.0.0.0:4221")
 	if err != nil {
 		fmt.Println("Failed to bind to port 4221")
@@ -24,11 +30,11 @@ func main() {
 			os.Exit(1)
 		}
 
-		go handleRequest(conn)
+		go handleRequest(conn, dir)
 	}
 }
 
-func handleRequest(conn net.Conn) {
+func handleRequest(conn net.Conn, dir string) {
 	defer conn.Close()
 
 	readBuffer := make([]byte, 1024)
@@ -65,6 +71,16 @@ func handleRequest(conn net.Conn) {
 
 		conn.Write([]byte(headers))
 		conn.Write([]byte(body))
+	case strings.Contains(urlPath, "/files"):
+		str := strings.Split(urlPath, "/files/")
+		filename := str[1]
+
+		_, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, filename))
+		if err != nil {
+			conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
+		}
+
+		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
 	}
