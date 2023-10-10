@@ -80,7 +80,9 @@ func handleRequest(conn net.Conn, dir string) {
 			conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 		}
 
-		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+		headers := fmt.Sprint("HTTP/1.1 200 OK\r\nContent-Type: octet-stream\r\n\r\n")
+
+		conn.Write([]byte(headers))
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
 	}
