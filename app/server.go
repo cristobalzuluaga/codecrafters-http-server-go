@@ -73,7 +73,6 @@ func handleRequest(conn net.Conn) {
 func parseURLPath(requestData string) string {
 	lines := strings.Split(requestData, "\n")
 	if len(lines) > 0 {
-		// Splitting the first line (e.g., "GET /echo/abc HTTP/1.1") to get the URL path
 		parts := strings.Split(lines[0], " ")
 		if len(parts) > 1 {
 			return parts[1]
