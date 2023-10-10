@@ -32,19 +32,42 @@ func handleRequest(conn net.Conn) {
 	defer conn.Close()
 
 	readBuffer := make([]byte, 1024)
-	_, err := conn.Read(readBuffer)
+	n, err := conn.Read(readBuffer)
 	if err != nil {
 		fmt.Println("Error reading: ", err.Error())
 		return
 	}
 
-	req := strings.Split(string(readBuffer), "\r\n")
-	path := strings.Split(req[0], " ")[1]
+	reqData := string(readBuffer[:n])
+	urlPath := parseURLPath(reqData)
 
-	switch path {
-	case "/":
+	switch {
+	case urlPath == "/":
 		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	case strings.Contains(urlPath, "/echo/"):
+		str := strings.Split(urlPath, "/echo/")
+		body := str[1]
+
+		headers := fmt.Sprintf(
+			"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n",
+			len(body),
+		)
+
+		conn.Write([]byte(headers))
+		conn.Write([]byte(body))
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
 	}
+}
+
+func parseURLPath(requestData string) string {
+	lines := strings.Split(requestData, "\n")
+	if len(lines) > 0 {
+		// Splitting the first line (e.g., "GET /echo/abc HTTP/1.1") to get the URL path
+		parts := strings.Split(lines[0], " ")
+		if len(parts) > 1 {
+			return parts[1]
+		}
+	}
+	return ""
 }
