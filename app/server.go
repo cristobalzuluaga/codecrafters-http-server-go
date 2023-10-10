@@ -75,14 +75,20 @@ func handleRequest(conn net.Conn, dir string) {
 		str := strings.Split(urlPath, "/files/")
 		filename := str[1]
 
-		_, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, filename))
+		buffer, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, filename))
 		if err != nil {
 			conn.Write([]byte("HTTP/1.1 404 Not Found\r\n\r\n"))
 		}
 
-		headers := "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\n\r\n"
+		body := string(buffer)
+
+		headers := fmt.Sprintf(
+			"HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nContent-Length: %d\r\n\r\n",
+			len(body),
+		)
 
 		conn.Write([]byte(headers))
+		conn.Write([]byte(body))
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
 	}
