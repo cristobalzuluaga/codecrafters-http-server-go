@@ -40,6 +40,7 @@ func handleRequest(conn net.Conn) {
 
 	reqData := string(readBuffer[:n])
 	urlPath := parseURLPath(reqData)
+	userAgent := parseUserAgent(reqData)
 
 	switch {
 	case urlPath == "/":
@@ -55,6 +56,14 @@ func handleRequest(conn net.Conn) {
 
 		conn.Write([]byte(headers))
 		conn.Write([]byte(body))
+	case strings.Contains(urlPath, "/user-agent"):
+		headers := fmt.Sprintf(
+			"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n",
+			len(userAgent),
+		)
+
+		conn.Write([]byte(headers))
+		conn.Write([]byte(userAgent))
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
 	}
@@ -67,6 +76,16 @@ func parseURLPath(requestData string) string {
 		parts := strings.Split(lines[0], " ")
 		if len(parts) > 1 {
 			return parts[1]
+		}
+	}
+	return ""
+}
+
+func parseUserAgent(requestData string) string {
+	lines := strings.Split(requestData, "\n")
+	for _, line := range lines {
+		if strings.Contains(line, "User-Agent:") {
+			return strings.Split(line, "User-Agent: ")[1]
 		}
 	}
 	return ""
