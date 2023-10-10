@@ -25,9 +25,11 @@ func main() {
 
 	conn.Read(nil)
 
-	_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	res, err := conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
 	if err != nil {
 		log.Println("Error writing bytes: ", err.Error())
 		os.Exit(1)
 	}
+
+	fmt.Printf("res: %v\n", res)
 }
