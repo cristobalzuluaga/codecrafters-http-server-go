@@ -96,7 +96,7 @@ func handleRequest(conn net.Conn, dir string) {
 
 		if method == "POST" {
 			os.WriteFile(fmt.Sprintf("%s/%s", dir, filename), []byte(parseBody), fs.ModePerm)
-			conn.Write([]byte("HTTP/1.1 404 Not Found Post\r\n\r\n"))
+			conn.Write([]byte("HTTP/1.1 201 Created\r\n\r\n"))
 		}
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
