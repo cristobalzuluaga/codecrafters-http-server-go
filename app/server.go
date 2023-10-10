@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -31,13 +32,19 @@ func handleRequest(conn net.Conn) {
 	defer conn.Close()
 
 	readBuffer := make([]byte, 1024)
-
 	_, err := conn.Read(readBuffer)
 	if err != nil {
 		fmt.Println("Error reading: ", err.Error())
 		return
 	}
-	fmt.Println("Received: ", string(readBuffer))
 
-	conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	req := strings.Split(string(readBuffer), "\r\n")
+	path := strings.Split(req[0], " ")[1]
+
+	switch path {
+	case "/":
+		conn.Write([]byte("HTTP/1.1 200 OK\r\n\r\n"))
+	default:
+		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
+	}
 }
