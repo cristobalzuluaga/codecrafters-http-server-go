@@ -38,5 +38,5 @@ func main() {
 	}
 
 	fmt.Printf("res: %v\n", res)
-	fmt.Printf("req: %v\n", req)
+	// fmt.Printf("req: %v\n", req)
 }
