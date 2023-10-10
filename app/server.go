@@ -57,13 +57,14 @@ func handleRequest(conn net.Conn) {
 		conn.Write([]byte(headers))
 		conn.Write([]byte(body))
 	case strings.Contains(urlPath, "/user-agent"):
+		body := strings.TrimSpace(userAgent)
 		headers := fmt.Sprintf(
 			"HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: %d\r\n\r\n",
-			len(userAgent),
+			len(body),
 		)
 
 		conn.Write([]byte(headers))
-		conn.Write([]byte(userAgent))
+		conn.Write([]byte(body))
 	default:
 		conn.Write([]byte("HTTP/1.1 404 Not Found response\r\n\r\n"))
 	}
